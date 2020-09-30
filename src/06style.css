@@ -17,3 +17,10 @@ span {
 li:nth-child(odd) {
     background-color: #efefef;
 }
+
+#map{
+    width:800px;
+    height:600px;
+    margin: 150px auto;
+    border:1px solid #ddd;
+}
