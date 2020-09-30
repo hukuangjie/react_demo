@@ -1,94 +1,86 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-function ListItem(props) {
+
+class ComLife extends Component {
+  constructor(props) {
+    super(props)  //调用Component的构造函数
+    this.state = {
+      msg: 'hello world'
+    }
+    console.log('constructor构造函数');
+  }
+  componentWillMount() {
+    console.log('componentWillMount组件将要渲染');
+  }
+  componentDidMount() {
+    console.log('componentDidMount组件渲染完毕');
+  }
+  componentWillReceiveProps() {
+    console.log('componentWillReceiveProps组件将要接收新的state和props');
+  }
+  componentWillUpdate() {
+    console.log("componentWillUpdate将要更新");
+  }
+  componentWillUnmount() {
+    console.log("componentWillUnmount将要移除");
+  }
+  shouldComponentUpdate() {
+    // 如果希望更新就返回真
+    console.log('是否需要进行更新');
+    if (this.state.msg === "hello world") {
+      console.log("true");
+      return true
+    } else {
+      console.log("false");
+      return false
+    }
+  }
+  componentDidUpdate() {
+    console.log('componentDidUpdate组件更新完毕');
+  }
+  render() {
+    console.log("render渲染");
     return (
-        <li>
-            <h3>{props.index + 1}:{props.data.title}</h3>
-            <p>{props.data.content}</p>
-        </li>
+      <div>
+        <h1>{this.state.msg}</h1>
+        <button onClick={this.changeMsg}>组件更新</button>
+      </div>
     )
+  }
+  changeMsg = () => {
+    this.setState({
+      msg: 'hello laohu'
+    })
+  }
 }
 
-class ListItem2 extends React.Component {
-    constructor(props) {
-        super(props)
+class ParentCom extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      isShow: true
     }
-    render() {
-        return (
-            <li onClick={(e) => {
-                this.clickEvent(this.props.index, this.props.data.title, e)
-            }}>
-                <h3>{this.props.index + 1}:{this.props.data.title}</h3>
-                <p>{this.props.data.content}</p>
-            </li>
-        )
+  }
+  removeCom = () => {
+    this.setState({
+      isShow: false
+    })
+  }
+  render() {
+    if (this.state.isShow) {
+      return (
+        <div>
+          <button onClick={this.removeCom}>移除comlifer</button>
+          <ComLife />
+        </div>
+      )
+    } else {
+      return <h1>将comlife已经移除</h1>
     }
-    clickEvent = (index, title, event) => {
-        alert(index + '-' + title)
-    }
+  }
 }
 
-class Welcome extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            list: [
-                {
-                    title: "第一节课 React 事件",
-                    content: "事件内容"
-                }, {
-                    title: "第一节课 React 数据传递",
-                    content: "数据传递"
-                }, {
-                    title: "第一节课 React 条件渲染",
-                    content: "条件渲染"
-                }
-            ]
-        }
-    }
-
-    render() {
-        let listArr = this.state.list.map((item, index) => {
-            return (
-                <ListItem2 key={index} data={item} index={index} />
-                // <li key={index}>
-                //     <h3>{index}{item.title}</h3>
-                //     <p>{item.content}</p>
-                // </li>
-            )
-        })
-        console.log(listArr);
-        return (
-            <div>
-                <h1>
-                    今天课程内容
-               </h1>
-                <ul>
-                    {listArr}
-                    <li>
-                        <h3>这是标题</h3>
-                        <p>内容</p>
-                    </li>
-                </ul>
-                <h1>复杂没有用组件完成列表</h1>
-                {
-                    this.state.list.map((item, index) => {
-                        return (
-                            <li key={index} onClick={(e) => {
-                                this.clickFn(index, item.title, e)
-                            }}>
-                                <h3>{index + 1}+"复杂"+{item.title}</h3>
-                                <p>{item.content}</p>
-                            </li>
-                        )
-                    })
-                }
-            </div>
-        )
-    }
-    clickFn = (index, title, event) => {
-        alert(index + '-clickFn' + title)
-    }
-}
-
-ReactDOM.render(<Welcome />, document.getElementById('root'))
+ReactDOM.render(
+  <ParentCom />,
+  document.querySelector("#root")
+)
