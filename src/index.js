@@ -1,86 +1,104 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
+import axios from 'axios'
+import NewsCom from './component/newscom'
+import './assets/css/style.css'
 
-class ComLife extends Component {
-  constructor(props) {
-    super(props)  //调用Component的构造函数
-    this.state = {
-      msg: 'hello world'
-    }
-    console.log('constructor构造函数');
-  }
-  componentWillMount() {
-    console.log('componentWillMount组件将要渲染');
-  }
-  componentDidMount() {
-    console.log('componentDidMount组件渲染完毕');
-  }
-  componentWillReceiveProps() {
-    console.log('componentWillReceiveProps组件将要接收新的state和props');
-  }
-  componentWillUpdate() {
-    console.log("componentWillUpdate将要更新");
-  }
-  componentWillUnmount() {
-    console.log("componentWillUnmount将要移除");
-  }
-  shouldComponentUpdate() {
-    // 如果希望更新就返回真
-    console.log('是否需要进行更新');
-    if (this.state.msg === "hello world") {
-      console.log("true");
-      return true
-    } else {
-      console.log("false");
-      return false
-    }
-  }
-  componentDidUpdate() {
-    console.log('componentDidUpdate组件更新完毕');
-  }
-  render() {
-    console.log("render渲染");
-    return (
-      <div>
-        <h1>{this.state.msg}</h1>
-        <button onClick={this.changeMsg}>组件更新</button>
-      </div>
-    )
-  }
-  changeMsg = () => {
-    this.setState({
-      msg: 'hello laohu'
-    })
-  }
+function MapCom(props){
+  return (
+    <div className="contentItem">
+      <h1>
+        这是疫情地图组件
+      </h1>
+    </div>
+  )
 }
 
-class ParentCom extends Component {
-  constructor(props) {
+function GzCom(props){
+  return (
+    <div className="contentItem">
+      <h1>
+        这是广州疫情组件
+      </h1>
+    </div>
+  )
+}
+
+function XcCom(props){
+  return (
+    <div className="contentItem">
+      <h1>
+        这是直击现场组件
+      </h1>
+    </div>
+  )
+}
+
+
+class App extends React.Component {
+  constructor(props){
     super(props)
     this.state = {
-      isShow: true
+      newData:null,
+      navList:['疫情地图','最新进展',"广州疫情","直击现场"],
+      tabIndex:0,
+      barStyle:{
+        left:'22px'
+      },
+      contentStyle:{
+        transform:'translate(0,0)'
+      }
     }
   }
-  removeCom = () => {
-    this.setState({
-      isShow: false
-    })
+  async componentWillMount(){
+    let res = await axios.get('http://localhost:8080/api/newsdata')
+    console.log(res.data)
+    let data = JSON.parse(res.data.forum.extra.ncov_string_list) 
+    console.log(data) 
   }
-  render() {
-    if (this.state.isShow) {
-      return (
-        <div>
-          <button onClick={this.removeCom}>移除comlifer</button>
-          <ComLife />
+  render(){
+    return (
+      <div className="App">
+        <div className="nav">
+          {
+            this.state.navList.map((item,index)=>{
+              if(index===this.state.tabIndex){
+                return (
+                  <div key={index} onClick={(event)=> {this.tabClickEvent(index)}} className="navItem active">{item}</div>
+                )
+              }else{
+                return (
+                  <div key={index} onClick={(event)=> {this.tabClickEvent(index)}} className="navItem">{item}</div>
+                )
+              }
+              
+            })
+          }
+
+          <div className="bar" style={this.state.barStyle}></div>
         </div>
-      )
-    } else {
-      return <h1>将comlife已经移除</h1>
-    }
+
+        <div className="content" style={this.state.contentStyle}>
+          <MapCom></MapCom>
+          <NewsCom></NewsCom>
+          <GzCom></GzCom>
+          <XcCom></XcCom>
+          
+        </div>
+        
+      </div>
+    );
+  }
+  tabClickEvent=(index)=>{
+    console.log(index);
+    this.setState({
+      barStyle:{
+        left:(index*88+22)+"px"
+      },
+      contentStyle:{
+        transform:`translate(-${index*375}px,0)`
+      }
+    })
   }
 }
 
-ReactDOM.render(
-  <ParentCom />,
-  document.querySelector("#root")
-)
+export default App;
