@@ -1,104 +1,50 @@
-import React from 'react';
-import axios from 'axios'
-import NewsCom from './component/newscom'
-import './assets/css/style.css'
-
-function MapCom(props){
-  return (
-    <div className="contentItem">
-      <h1>
-        这是疫情地图组件
-      </h1>
-    </div>
-  )
-}
-
-function GzCom(props){
-  return (
-    <div className="contentItem">
-      <h1>
-        这是广州疫情组件
-      </h1>
-    </div>
-  )
-}
-
-function XcCom(props){
-  return (
-    <div className="contentItem">
-      <h1>
-        这是直击现场组件
-      </h1>
-    </div>
-  )
-}
-
+import React from 'react'
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 class App extends React.Component {
-  constructor(props){
-    super(props)
-    this.state = {
-      newData:null,
-      navList:['疫情地图','最新进展',"广州疫情","直击现场"],
-      tabIndex:0,
-      barStyle:{
-        left:'22px'
-      },
-      contentStyle:{
-        transform:'translate(0,0)'
-      }
-    }
-  }
-  async componentWillMount(){
-    let res = await axios.get('http://localhost:8080/api/newsdata')
-    console.log(res.data)
-    let data = JSON.parse(res.data.forum.extra.ncov_string_list) 
-    console.log(data) 
-  }
-  render(){
+  render() {
     return (
-      <div className="App">
-        <div className="nav">
-          {
-            this.state.navList.map((item,index)=>{
-              if(index===this.state.tabIndex){
-                return (
-                  <div key={index} onClick={(event)=> {this.tabClickEvent(index)}} className="navItem active">{item}</div>
-                )
-              }else{
-                return (
-                  <div key={index} onClick={(event)=> {this.tabClickEvent(index)}} className="navItem">{item}</div>
-                )
-              }
-              
-            })
-          }
-
-          <div className="bar" style={this.state.barStyle}></div>
-        </div>
-
-        <div className="content" style={this.state.contentStyle}>
-          <MapCom></MapCom>
-          <NewsCom></NewsCom>
-          <GzCom></GzCom>
-          <XcCom></XcCom>
-          
-        </div>
-        
+      <div>
+        <h1>App</h1>
+        <ul>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/inbox">Inbox</Link></li>
+        </ul>
+        {this.props.children}
       </div>
-    );
+    )
   }
-  tabClickEvent=(index)=>{
-    console.log(index);
-    this.setState({
-      barStyle:{
-        left:(index*88+22)+"px"
-      },
-      contentStyle:{
-        transform:`translate(-${index*375}px,0)`
-      }
-    })
+}
+class About extends React.Component {
+  render() {
+    return <h3>About</h3>
   }
 }
 
-export default App;
+class Inbox extends React.Component {
+  render() {
+    return (
+      <div>
+        <h2>Inbox</h2>
+        {this.props.children || "Welcome to your Inbox"}
+      </div>
+    )
+  }
+}
+class Message extends React.Component {
+  render() {
+    return <h3>Message {this.props.params.id}</h3>
+  }
+}
+
+ReactDOM.render((
+  <Router>
+    <Route path="/" component={App}>
+      <Route path="about" component={About} />
+      <Route path="inbox" component={Inbox}>
+        <Route path="messages/:id" component={Message} />
+      </Route>
+    </Route>
+  </Router>
+), document.querySelector("#root"))
